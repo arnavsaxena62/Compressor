@@ -1,5 +1,3 @@
-// fast_bwt.c  -- replace bwt_encode implementation with this file's contents
-// Uses suffix array building by doubling + counting/radix sort (O(n log n))
 
 #include <stdint.h>
 #include <stdio.h>
@@ -16,9 +14,6 @@ static int cmp_suffixes_by_rank(const int* rank, int a, int b, int k, int n) {
   return 0;
 }
 
-/* Build suffix array using doubling + counting/radix sort approach.
-   Returns pointer to int array of length n (caller must free).
-*/
 static int* build_suffix_array(const unsigned char* s, int n) {
   int i, k;
   int* sa = malloc(n * sizeof(int));
@@ -37,10 +32,8 @@ static int* build_suffix_array(const unsigned char* s, int n) {
   }
 
   for (k = 1; k < n; k <<= 1) {
-    // Sort by (rank[i], rank[i+k]) using radix/counting sort twice.
-    // First sort by second key (rank[i+k]).
+ 
     int maxv = 256;
-    // But ranks can grow beyond 256; find max rank currently present
     for (i = 0; i < n; ++i)
       if (rank[i] + 1 > maxv)
         maxv = rank[i] + 1;
@@ -53,15 +46,13 @@ static int* build_suffix_array(const unsigned char* s, int n) {
       return NULL;
     }
 
-    // sort by second key
     for (i = 0; i < n; ++i) {
-      int key = (i + k < n) ? rank[i + k] + 1 : 0;  // 0 for -1
+      int key = (i + k < n) ? rank[i + k] + 1 : 0; 
       cnt[key]++;
     }
     for (i = 1; i <= maxv + 1; ++i)
       cnt[i] += cnt[i - 1];
 
-    // produce an ordering by second key into tmp_sa
     int* tmp_sa = malloc(n * sizeof(int));
     if (!tmp_sa) {
       free(cnt);
@@ -77,8 +68,7 @@ static int* build_suffix_array(const unsigned char* s, int n) {
     }
     free(cnt);
 
-    // Now sort tmp_sa by first key (rank[tmp_sa[i]]) using counting sort
-    // find max first key
+
     int maxr = 0;
     for (i = 0; i < n; ++i)
       if (rank[i] > maxr)
@@ -104,18 +94,16 @@ static int* build_suffix_array(const unsigned char* s, int n) {
     free(cnt);
     free(tmp_sa);
 
-    // now compute new ranks into tmp[]
     tmp[sa[0]] = 0;
     for (i = 1; i < n; ++i) {
       tmp[sa[i]] = tmp[sa[i - 1]] +
                    (cmp_suffixes_by_rank(rank, sa[i - 1], sa[i], k, n) < 0);
     }
-    // copy tmp -> rank
     for (i = 0; i < n; ++i)
       rank[i] = tmp[i];
 
     if (rank[sa[n - 1]] == n - 1)
-      break;  // all ranks distinct -> done
+      break; 
   }
 
   free(rank);
@@ -123,10 +111,6 @@ static int* build_suffix_array(const unsigned char* s, int n) {
   return sa;
 }
 
-/* bwt_encode: build suffix array, compute BWT string and primary index.
-   input: null-terminated C string
-   returns allocated char* (caller frees), sets *original_index.
-*/
 char* bwt_encode(const char* input, int* original_index) {
   if (!input)
     return NULL;
@@ -139,7 +123,7 @@ char* bwt_encode(const char* input, int* original_index) {
     return out;
   }
 
-  // For safety, we will work with unsigned char buffer
+
   unsigned char* s = malloc(n);
   if (!s)
     return NULL;
@@ -151,7 +135,7 @@ char* bwt_encode(const char* input, int* original_index) {
     return NULL;
   }
 
-  // Build BWT: last column characters
+
   char* bwt = malloc(n + 1);
   if (!bwt) {
     free(s);
@@ -164,7 +148,6 @@ char* bwt_encode(const char* input, int* original_index) {
     int pos = sa[i];
     int lastpos = (pos == 0) ? (int)n - 1 : pos - 1;
     bwt[i] = (char)s[lastpos];
-    // original string corresponds to suffix starting at 0
     if (pos == 0)
       primary = i;
   }

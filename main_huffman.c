@@ -4,21 +4,21 @@
 
 #define MAX_TREE_HT 256
 
-// Huffman tree node
+
 struct MinHeapNode {
   unsigned char data;
   unsigned freq;
   struct MinHeapNode *left, *right;
 };
 
-// MinHeap structure
+
 struct MinHeap {
   unsigned size;
   unsigned capacity;
   struct MinHeapNode** array;
 };
 
-// Create new node
+
 struct MinHeapNode* newNode(unsigned char data, unsigned freq) {
   struct MinHeapNode* temp =
       (struct MinHeapNode*)malloc(sizeof(struct MinHeapNode));
@@ -28,7 +28,7 @@ struct MinHeapNode* newNode(unsigned char data, unsigned freq) {
   return temp;
 }
 
-// Create a min heap
+
 struct MinHeap* createMinHeap(unsigned capacity) {
   struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
   minHeap->size = 0;
@@ -38,14 +38,14 @@ struct MinHeap* createMinHeap(unsigned capacity) {
   return minHeap;
 }
 
-// Swap
+
 void swapMinHeapNode(struct MinHeapNode** a, struct MinHeapNode** b) {
   struct MinHeapNode* t = *a;
   *a = *b;
   *b = t;
 }
 
-// Heapify
+
 void minHeapify(struct MinHeap* minHeap, int idx) {
   int smallest = idx;
   int left = 2 * idx + 1;
@@ -65,7 +65,7 @@ void minHeapify(struct MinHeap* minHeap, int idx) {
   }
 }
 
-// Extract minimum node
+
 struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
   struct MinHeapNode* temp = minHeap->array[0];
   minHeap->array[0] = minHeap->array[minHeap->size - 1];
@@ -74,7 +74,7 @@ struct MinHeapNode* extractMin(struct MinHeap* minHeap) {
   return temp;
 }
 
-// Insert node into heap
+
 void insertMinHeap(struct MinHeap* minHeap, struct MinHeapNode* minHeapNode) {
   minHeap->size++;
   int i = minHeap->size - 1;
@@ -183,7 +183,7 @@ void compress_huffman_s(const char* input_file, const char* output_file) {
     return;
   }
 
-  // FREQ TABLE
+
   fwrite(freq, sizeof(freq), 1, out);
 
   unsigned char buffer = 0;
@@ -269,7 +269,7 @@ void compress_huffman(const char* input_str, const char* output_file) {
     fwrite(&buffer, 1, 1, out);
   }
 
-  // Free codes
+
   for (int i = 0; i < 256; i++)
     if (codes[i])
       free(codes[i]);
@@ -321,24 +321,3 @@ void decompress_huffman(const char* input_file, const char* output_file) {
   printf("File decompressed successfully (Huffman)!\n");
 }
 
-// int main() {
-//     int choice;
-//     char input[100], output[100];
-
-//     printf("1. Huffman Compress\n2. Huffman Decompress\nEnter choice: ");
-//     scanf("%d", &choice);
-
-//     printf("Input file: ");
-//     scanf("%s", input);
-//     printf("Output file: ");
-//     scanf("%s", output);
-
-//     if (choice == 1)
-//         compress_huffman(input, output);
-//     else if (choice == 2)
-//         decompress_huffman(input, output);
-//     else
-//         printf("Invalid choice.\n");
-
-//     return 0;
-// }

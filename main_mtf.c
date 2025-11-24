@@ -11,7 +11,7 @@ unsigned char* mtf_encode(const unsigned char* input,
     return NULL;
   }
 
-  // initialize list 0..255
+
   unsigned char list[256];
   for (int i = 0; i < 256; ++i)
     list[i] = (unsigned char)i;
@@ -24,16 +24,15 @@ unsigned char* mtf_encode(const unsigned char* input,
 
   for (size_t i = 0; i < input_len; ++i) {
     unsigned char symbol = input[i];
-    // find index in list
+
     int pos = 0;
     while (pos < 256 && list[pos] != symbol)
       pos++;
     if (pos == 256)
-      pos = 255;  // shouldn't happen
+      pos = 255; 
 
     out[i] = (unsigned char)pos;
 
-    // move-to-front: shift elements right from 0..pos-1, place symbol at 0
     memmove(&list[1], &list[0], pos);
     list[0] = symbol;
   }
@@ -61,13 +60,13 @@ unsigned char* mtf_decode(const unsigned char* input,
     list[i] = (unsigned char)i;
 
   for (size_t i = 0; i < input_len; ++i) {
-    unsigned int pos = input[i];  // position in the list
+    unsigned int pos = input[i];
     if (pos > 255)
-      pos = 255;  // defensive
+      pos = 255; 
     unsigned char symbol = list[pos];
     out[i] = symbol;
 
-    // move symbol to front
+
     memmove(&list[1], &list[0], pos);
     list[0] = symbol;
   }

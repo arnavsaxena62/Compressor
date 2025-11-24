@@ -36,18 +36,17 @@ void compress_rle(const char* input, const char* output) {
     if (current == previous && count < 255) {
       count++;
     } else {
-      /* write run (count, previous) */
+
       fwrite(&count, 1, 1, out);
       fwrite(&previous, 1, 1, out);
       compressedsize += 2;
 
-      /* start new run */
+
       previous = current;
       count = 1;
     }
   }
 
-  /* write the final run */
   fwrite(&count, 1, 1, out);
   fwrite(&previous, 1, 1, out);
   compressedsize += 2;
@@ -127,27 +126,3 @@ size_t compress_rle_buffer(const unsigned char* input,
   return out_pos;
 }
 
-// int main() {
-//   int choice;
-//   char input[260], output[260];
-
-//   printf("1. Compress a file\n");
-//   printf("2. Decompress a file\n");
-//   printf("Enter your choice: ");
-//   if (scanf("%d", &choice) != 1)
-//     return 1;
-
-//   printf("Enter input file name: ");
-//   scanf("%s", input);
-//   printf("Enter output file name: ");
-//   scanf("%s", output);
-
-//   if (choice == 1)
-//     compress_rle(input, output);
-//   else if (choice == 2)
-//     decompress_rle(input, output);
-//   else
-//     printf("Invalid choice!\n");
-
-//   return 0;
-// }

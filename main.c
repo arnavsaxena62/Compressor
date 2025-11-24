@@ -1,33 +1,21 @@
-// main.c
-// Pipeline: read test.txt -> BWT -> MTF -> RLE -> Huffman (output.bin)
-// Produces output.bin (Huffman payload) and output.bin.meta (primary index +
-// original length)
+
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Prototypes for functions implemented in your uploaded files */
-char* bwt_encode(const char* input, int* original_index);  // from main_bwt.c
-// Use the file-based Huffman compressor from main_huffman.c
+
+char* bwt_encode(const char* input, int* original_index);  
+
 void compress_huffman_s(const char* input_file,
-                        const char* output_file);  // from main_huffman.c
+                        const char* output_file); 
 size_t compress_rle_buffer(const unsigned char* input,
                            size_t input_len,
                            unsigned char* output,
                            size_t output_capacity);
 
-/* RLE (count,value) buffer-based compressor (safe, splits runs >255).
-   Format: [count][value][count][value]...
-   Returns number of bytes written to output, 0 on error.
-*/
 
-/* MTF encode:
-   input: null-terminated string (BWT output)
-   output: allocated buffer of unsigned char (values 0..255). Caller must free.
-   returns output length via out_len pointer.
-*/
 
 int main(void) {
   const char* input_path = "test.txt";
@@ -35,7 +23,7 @@ int main(void) {
   const char* output_bin = "output.bin";
   const char* meta_file = "output.bin.meta";
 
-  // --- Read entire test.txt into buffer ---
+
   FILE* f = fopen(input_path, "rb");
   if (!f) {
     fprintf(stderr, "Error: cannot open %s\n", input_path);
@@ -58,11 +46,11 @@ int main(void) {
   }
   size_t read = fread(inbuf, 1, fsize, f);
   fclose(f);
-  inbuf[read] = '\0';  // null-terminate for bwt routines that use strlen
+  inbuf[read] = '\0'; 
 
   // --- BWT ---
   int primary_index = -1;
-  char* bwt_out = bwt_encode(inbuf, &primary_index);  // from main_bwt.c
+  char* bwt_out = bwt_encode(inbuf, &primary_index);  
   if (!bwt_out) {
     fprintf(stderr, "BWT failed\n");
     free(inbuf);
@@ -82,7 +70,7 @@ int main(void) {
   }
 
   // --- RLE ---
-  size_t rle_capacity = mtf_len * 2 + 16;  // safe upper bound
+  size_t rle_capacity = mtf_len * 2 + 16;  
   unsigned char* rle_out = malloc(rle_capacity);
   if (!rle_out) {
     fprintf(stderr, "Out of memory (RLE)\n");
@@ -122,15 +110,15 @@ int main(void) {
   }
   fclose(rfile);
 
-  // --- Huffman compress the intermediate file into output.bin ---
+
   compress_huffman_s(
       intermediate_rle,
-      output_bin);  // writes output_bin (from your main_huffman.c)
+      output_bin);  
 
-  // --- write metadata (primary index and original length) ---
+
   FILE* meta = fopen(meta_file, "wb");
   if (meta) {
-    // store as 32-bit signed int index, 32-bit unsigned original length
+
     int32_t idx = (int32_t)primary_index;
     uint32_t orig_len = (uint32_t)read;
     fwrite(&idx, sizeof(idx), 1, meta);
@@ -149,7 +137,7 @@ int main(void) {
   printf("Metadata written to %s (primary index + original length)\n",
          meta_file);
 
-  // cleanup
+
   free(inbuf);
   free(bwt_out);
   free(mtf_out);
